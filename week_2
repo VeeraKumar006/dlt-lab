@@ -1,0 +1,61 @@
+# Import required libraries
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import classification_report, confusion_matrix, accuracy_score
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load the iris dataset
+iris = load_iris()
+X = iris.data
+y = iris.target
+target_names = iris.target_names
+
+# Split the dataset into train and test sets (80-20 split)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Standardize the data
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+# Define the classifiers
+models = {
+    'KNN (k=3)': KNeighborsClassifier(n_neighbors=3),
+    'Naive Bayes': GaussianNB(),
+    'SVM (Linear Kernel)': SVC(kernel='linear')
+}
+
+# Evaluate each model
+for name, model in models.items():
+    print("="*50)
+    print(f"Classifier: {name}\n")
+
+    # Train
+    model.fit(X_train, y_train)
+    # Predict
+    y_pred = model.predict(X_test)
+
+    # Print results
+    acc = accuracy_score(y_test, y_pred)
+    cm = confusion_matrix(y_test, y_pred)
+    cr = classification_report(y_test, y_pred, target_names=target_names)
+
+    print("Confusion Matrix:")
+    print(cm)
+    print(f"\nAccuracy: {acc:.4f}\n")
+    print("Classification Report:")
+    print(cr)
+
+    # Plot confusion matrix
+    plt.figure(figsize=(6,4))
+    sns.heatmap(cm, annot=True, cmap='Blues', fmt='d', xticklabels=target_names, yticklabels=target_names)
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    plt.title(f"{name} - Confusion Matrix")
+    plt.tight_layout()
+    plt.show()
