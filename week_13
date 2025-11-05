@@ -1,0 +1,8 @@
+# Experiment 13: Understanding a Pre-trained CNN model architecture
+from tensorflow.keras.applications import VGG16
+
+# Load VGG16 with pre-trained weights
+model = VGG16(weights='imagenet')
+
+# Display architecture summary
+model.summary()
