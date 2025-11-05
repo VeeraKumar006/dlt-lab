@@ -1,0 +1,38 @@
+# Experiment 14: Transfer Learning with MobileNetV2 (Fixed Version using CIFAR-10)
+
+import tensorflow as tf
+from tensorflow.keras.applications import MobileNetV2
+from tensorflow.keras.layers import Dense, GlobalAveragePooling2D
+from tensorflow.keras.models import Model
+
+# Load CIFAR-10 dataset (10 classes)
+(x_train, y_train), (x_test, y_test) = tf.keras.datasets.cifar10.load_data()
+
+# Normalize pixel values
+x_train, x_test = x_train / 255.0, x_test / 255.0
+
+# Convert labels to one-hot encoding
+y_train = tf.keras.utils.to_categorical(y_train, 10)
+y_test = tf.keras.utils.to_categorical(y_test, 10)
+
+# Load pre-trained MobileNetV2 (no top layer)
+base_model = MobileNetV2(weights='imagenet', include_top=False, input_shape=(32,32,3))
+base_model.trainable = False  # freeze base
+
+# Add new classifier
+x = base_model.output
+x = GlobalAveragePooling2D()(x)
+x = Dense(128, activation='relu')(x)
+predictions = Dense(10, activation='softmax')(x)
+
+model = Model(inputs=base_model.input, outputs=predictions)
+
+# Compile model
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+# Train the model
+history = model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=5, batch_size=64)
+
+# Evaluate
+loss, acc = model.evaluate(x_test, y_test)
+print(f"\n Validation Accuracy: {acc:.2f}")
