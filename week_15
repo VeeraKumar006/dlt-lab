@@ -1,0 +1,23 @@
+from PIL import Image as PILImage
+from IPython.display import Image, display
+from ultralytics import YOLO
+
+# Step 1: Load YOLO model (YOLOv8 nano for speed)
+model = YOLO('yolov8n.pt')
+
+# Step 2: Convert uploaded image (if .webp)
+input_image = "p020rgbg.jpg.webp"   # change if your uploaded filename is different
+converted_image = "converted_test.jpg"
+
+# Convert webp → jpg
+img = PILImage.open(input_image).convert("RGB")
+img.save(converted_image, "JPEG")
+
+# Step 3: Run YOLO detection
+results = model(converted_image)
+
+# Step 4: Save detection result
+results[0].save(filename="result_detected.jpg")
+
+# Step 5: Display result inline
+display(Image(filename="result_detected.jpg"))
